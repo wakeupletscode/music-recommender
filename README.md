@@ -1,4 +1,4 @@
-# 🎵 Music Recommender
+#  Vibrance
 
 A content-based music recommendation system that suggests similar songs based on audio features, built with Python and Streamlit.
 
