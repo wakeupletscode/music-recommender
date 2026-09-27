@@ -1,128 +1,137 @@
-#  Vibrance
+# Vibrance
 
 A content-based music recommendation system that suggests similar songs based on audio features, built with Python and Streamlit.
 
 ---
 
-## 📌 Overview
+## Overview
 
-Enter any song name and get 10 personalized recommendations based on audio similarity. The system uses weighted cosine similarity across 9 audio features — with optional explicit content filtering — to surface tracks that genuinely match the feel of your chosen song.
+Enter a song name and get 10 recommendations based on audio similarity. The system uses weighted cosine similarity across 9 audio features, with optional explicit content filtering and popularity-aware ranking.
 
----
+## Features
 
-## ✨ Features
+* **Content-Based Filtering** — Recommends songs using weighted cosine similarity across audio features
+* **Custom Feature Weighting** — Uses manually selected weights for danceability, energy, valence, acousticness, and other features
+* **Explicit Filter** — Option to exclude explicit tracks
+* **Genre Boosting** — Gives a small boost to songs sharing a genre with the selected track
+* **Popularity Matching** — Soft-weights recommendations toward songs with similar popularity scores
+* **Duplicate Handling** — Groups songs appearing across multiple genres into a single entry
+* **Cached Preprocessing** — Uses `@st.cache_data` to avoid repeating preprocessing on every interaction
+* **Streamlit UI** — Interactive song search, song disambiguation, and recommendations
+* **Deployed App** — Available as a live Streamlit application
 
-- 🎯 **Content-Based Filtering** — Recommends songs using weighted cosine similarity across audio features
-- ⚖️ **Custom Feature Weighting** — Manually tuned weights for danceability, energy, valence, acousticness, and more
-- 🔇 **Explicit Filter** — Optional toggle to exclude explicit tracks from recommendations
-- 📈 **Popularity Matching** — Soft-weights recommendations toward songs with similar popularity scores
-- 🔎 **Duplicate Handling** — Groups songs appearing across multiple genres into single unified entries
-- ⚡ **Cached Preprocessing** — Uses `@st.cache_data` so the dataset loads and scales only once
-- 🌐 **Streamlit UI** — Clean, interactive web interface with song search and disambiguation
+## Tech Stack
 
----
+| Library        | Purpose                                                |
+| -------------- | ------------------------------------------------------ |
+| `scikit-learn` | Feature standardization using `StandardScaler`         |
+| `NumPy`        | Feature normalization and cosine similarity            |
+| `Pandas`       | Dataset loading, cleaning, deduplication, and grouping |
+| `Streamlit`    | Interactive web interface                              |
 
-## 🛠️ Tech Stack
+## How It Works
 
-| Library | Purpose |
-|---|---|
-| `scikit-learn` | Feature standardization (StandardScaler) |
-| `NumPy` | Cosine similarity via matrix dot product, normalization |
-| `Pandas` | Dataset loading, deduplication, grouping |
-| `Streamlit` | Interactive web UI |
-
----
-
-## 🧠 How It Works
-
-1. **Preprocessing** — The dataset is cleaned, deduplicated, and grouped so songs appearing in multiple genres are merged into one entry
-2. **Scaling** — 9 audio features are standardized using `StandardScaler`
-3. **Weighting** — Each feature is multiplied by a manually tuned weight to reflect its importance in music similarity
-4. **Normalization** — The weighted feature matrix is L2-normalized row-wise for accurate cosine similarity
-5. **Recommendation** — On query, the system computes dot product similarity between the selected song vector and all others, applies popularity weighting, and returns the top 10 matches
+1. **Preprocessing** — The dataset is cleaned and songs appearing across multiple genre entries are grouped into single entries.
+2. **Scaling** — 9 audio features are standardized using `StandardScaler`.
+3. **Weighting** — Each feature is multiplied by a manually selected weight to control its contribution to similarity.
+4. **Normalization** — The weighted feature vectors are L2-normalized.
+5. **Recommendation** — The selected song is compared with all other songs using cosine similarity. Genre boosting and popularity weighting are then applied before returning the top 10 recommendations.
 
 ### Audio Features Used
 
-| Feature | Weight | Reason |
-|---|---|---|
-| Danceability | 1.0 | Strong indicator of song feel |
-| Energy | 1.0 | Core similarity signal |
-| Valence | 1.0 | Mood of the song |
-| Acousticness | 1.0 | Acoustic vs electronic character |
-| Instrumentalness | 0.7 | Reduced to avoid over-clustering instrumentals |
-| Tempo | 0.7 | Less critical than mood/energy |
-| Speechiness | 0.55 | Reduced to prevent rap clustering |
-| Loudness | 0.5 | Less perceptually meaningful |
-| Liveness | 0.5 | Minimizes live recording bias |
+| Feature          | Weight |
+| ---------------- | -----: |
+| Danceability     |    1.0 |
+| Energy           |    1.0 |
+| Valence          |    1.0 |
+| Acousticness     |    1.0 |
+| Instrumentalness |    0.7 |
+| Tempo            |    0.7 |
+| Speechiness      |   0.55 |
+| Loudness         |    0.5 |
+| Liveness         |    0.5 |
 
----
+## Setup
 
-## ⚙️ Setup
+### 1. Clone the repository
 
-**1. Clone the repository**
 ```bash
 git clone https://github.com/YOUR_USERNAME/music-recommender.git
 cd music-recommender
 ```
 
-**2. Install dependencies**
+### 2. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-**3. Add the dataset**
+### 3. Add the dataset
 
-Place your dataset CSV at:
-```
+Place the dataset CSV at:
+
+```text
 dataset/dataset.csv
 ```
 
-The CSV should contain columns: `track_name`, `artists`, `explicit`, `popularity`, `track_genre`, and the 9 audio feature columns listed above.
+The CSV should contain:
 
-**4. Run the app**
+```text
+track_name
+artists
+explicit
+popularity
+track_genre
+danceability
+energy
+loudness
+speechiness
+acousticness
+instrumentalness
+liveness
+valence
+tempo
+```
+
+### 4. Run the app
+
 ```bash
 streamlit run app.py
 ```
 
----
+## Usage
 
-## 🚀 Usage
+1. Enter an exact song name.
+2. If multiple songs have the same name, select the correct artist from the dropdown.
+3. Toggle the explicit-content filter if required.
+4. View the 10 recommended tracks and their recommendation scores.
 
-1. Type an exact song name into the search box
-2. Select the correct version from the disambiguation dropdown (handles duplicate song names across artists)
-3. Toggle explicit filter if needed
-4. View your 10 recommendations with similarity scores
+## Project Structure
 
----
-
-## 📂 Project Structure
-
-```
+```text
 music-recommender/
 │
-├── app.py                  # Main Streamlit app
-├── requirements.txt        # Python dependencies
+├── app.py
+├── requirements.txt
 ├── dataset/
-│   └── dataset.csv         # Spotify audio features dataset
+│   └── dataset.csv
 └── README.md
 ```
 
----
+## Notes
 
-## 📝 Notes
+* Song search is an **exact match** and is case-insensitive.
+* The recommender is **content-based** and does not use listening history or collaborative filtering.
+* The recommendation score combines audio similarity with genre and popularity adjustments.
 
-- Song search is **exact match** (case-insensitive) — ensure the song name is spelled correctly
-- The recommender is purely **content-based** — it does not use listening history or collaborative filtering
-- Similarity scores are displayed as a normalized percentage for readability
+## Live Demo
 
----
+[Music Recommender](https://music-recommender-by-omkar.streamlit.app/)
 
-## 👤 Author
+## Author
 
 Made by **Omkar Dey**
 
----
-
-## 📄 License
+## License
 
 MIT License
